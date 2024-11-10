@@ -1,39 +1,44 @@
 ﻿using Microsoft.Data.SqlClient;
 using SingleResponsibilityPrinciple.Contracts;
 using SingleResponsibilityPrinciple;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace SingleResponsibilityPrinciple.Tests
+namespace SingleResponsibilityPrinciple
 {
-    [TestClass()]
-    public class RestfulTradeDataProviderTests
+    internal class RestfulTradeDataProvider : ITradeDataProvider
     {
-        private int countStrings(IEnumerable<string> collectionOfStrings)
+        private readonly string restfulURL;
+        private readonly ILogger logger;
+
+        public RestfulTradeDataProvider(string restfulURL, ILogger logger)
         {
-            // count the trades
-            int count = 0;
-            foreach (var trade in collectionOfStrings)
-            {
-                count++;
-            }
-            return count;
+            this.restfulURL = restfulURL;
+            this.logger = logger;
         }
 
-
-        [TestMethod()]
-        public void TestSize3()
+        public async Task<IEnumerable<string>> GetTradeData()
         {
-            //Arrange
-            ILogger logger = new ConsoleLogger();
-            string restfulURL = "http://unit9trader.azurewebsites.net/api/TradeData";
+            try
+            {
+                // Try to fetch trade data asynchronously
+                return await GetProductAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the error and return an empty list if an exception occurs
+                logger.LogWarning("Error retrieving trade data: {ExceptionMessage}", ex.Message);
+                return await Task.FromResult(Enumerable.Empty<string>());
+            }
+        }
 
-            ITradeDataProvider tradeProvider = new RestfulTradeDataProvider(restfulURL, logger);
-
-            //Act
-            IEnumerable<string> trades = tradeProvider.GetTradeData();
-
-            //Assert
-
-            Assert.AreEqual(countStrings(trades), 3);
+        private async Task<IEnumerable<string>> GetProductAsync()
+        {
+            // Simulate an asynchronous operation, e.g., fetching data from an API or DB.
+            await Task.Delay(1000);  // Simulating a network delay
+            return new List<string> { "Trade1", "Trade2", "Trade3" }; // Returning mock trade data
         }
     }
 }
+

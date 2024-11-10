@@ -8,21 +8,18 @@ using System.Threading.Tasks;
 namespace SingleResponsibilityPrinciple
 {
     internal class URLAsyncProvider : ITradeDataProvider
-
     {
-        ITradeDataProvider baseProvider;
-        
+        private readonly ITradeDataProvider baseProvider;
 
         public URLAsyncProvider(ITradeDataProvider baseProvider)
         {
             this.baseProvider = baseProvider;
         }
-        public IEnumerable<string> GetTradeData()
+
+        public async Task<IEnumerable<string>> GetTradeData()
         {
-            Task<IEnumerable<string>> task = Task.Run(() => baseProvider.GetTradeData()); ;
-            task.Wait();
-            IEnumerable<string> lines = task.Result;
-            return lines;
+            // Call the baseProvider's GetTradeData asynchronously and return the result
+            return await baseProvider.GetTradeData();
         }
     }
 }

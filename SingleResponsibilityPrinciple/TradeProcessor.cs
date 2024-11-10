@@ -1,5 +1,6 @@
-﻿
-using SingleResponsibilityPrinciple.Contracts;
+﻿using SingleResponsibilityPrinciple.Contracts;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SingleResponsibilityPrinciple
 {
@@ -12,10 +13,16 @@ namespace SingleResponsibilityPrinciple
             this.tradeStorage = tradeStorage;
         }
 
-        public void ProcessTrades()
+        // Make ProcessTrades asynchronous to call GetTradeData() with await
+        public async Task ProcessTradesAsync()
         {
-            var lines = tradeDataProvider.GetTradeData();
+            // Use await to get the trade data asynchronously
+            var lines = await tradeDataProvider.GetTradeData();  // This line is now asynchronous
+
+            // Parse the lines (assuming Parse is synchronous)
             var trades = tradeParser.Parse(lines);
+
+            // Persist the parsed trades (assuming Persist is synchronous)
             tradeStorage.Persist(trades);
         }
 
@@ -24,3 +31,4 @@ namespace SingleResponsibilityPrinciple
         private readonly ITradeStorage tradeStorage;
     }
 }
+
